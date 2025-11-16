@@ -1,0 +1,1 @@
+source "$BR2_EXTERNAL_BEAGLEBURNER_PATH/package/burner/Config.in"

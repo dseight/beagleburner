@@ -1,0 +1,5 @@
+config BR2_PACKAGE_BURNER
+	bool "burner"
+	select BR2_PACKAGE_LIBEVDEV
+	help
+	  burner package.

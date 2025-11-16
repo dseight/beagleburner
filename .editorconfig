@@ -1,0 +1,19 @@
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.dtso]
+indent_style = tab
+indent_size = 8
+
+[*.its]
+indent_style = tab
+indent_size = 8
+
+[*.cfg]
+indent_style = tab
+indent_size = 8
+
+[device_table.txt]
+indent_style = tab
+indent_size = 8

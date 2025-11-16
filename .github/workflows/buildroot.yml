@@ -1,0 +1,63 @@
+name: buildroot
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        path: beagleburner
+
+    - uses: actions/checkout@v6
+      with:
+        repository: buildroot/buildroot
+        ref: '2025.11'
+        path: buildroot
+
+    - name: Run defconfig
+      working-directory: buildroot
+      run: make BR2_EXTERNAL=../beagleburner beaglebone_defconfig
+
+    - name: Restore Downloads Cache
+      id: cache-downloads-restore
+      uses: actions/cache/restore@v5
+      with:
+        path: ~/.buildroot-dl
+        key: buildroot-dl
+
+    - name: Download buildroot sources
+      working-directory: buildroot
+      run: make source
+
+    - name: Save Downloads Cache
+      id: cache-downloads-save
+      uses: actions/cache/save@v5
+      with:
+        path: ~/.buildroot-dl
+        key: ${{ steps.cache-downloads-restore.outputs.cache-primary-key }}
+
+    - name: Restore compiler cache
+      id: cache-compiler-restore
+      uses: actions/cache/restore@v5
+      with:
+        path: ~/.buildroot-ccache
+        key: buildroot-ccache
+
+    - name: Build
+      working-directory: buildroot
+      run: make
+
+    - name: Save compiler cache
+      id: cache-compiler-save
+      uses: actions/cache/save@v5
+      with:
+        path: ~/.buildroot-ccache
+        key: ${{ steps.cache-compiler-restore.outputs.cache-primary-key }}

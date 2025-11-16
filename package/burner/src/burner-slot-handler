@@ -1,0 +1,71 @@
+#!/bin/sh
+
+DEV="/dev/mmcblk0"
+SLOT=""
+
+die() {
+    echo "burner-slot-handler: $*" >&2
+    exit 1
+}
+
+umount_all() {
+    for m in "$@"; do
+        umount "$m"
+    done
+}
+
+copy_dirs_content() {
+    # Partitions on mmcblk to mount and copy files to
+    PARTS=$(find /storage -type d -name "slot${SLOT}_p[1-9]" | cut -f2 -d_)
+    MOUNTED=""
+    FAIL=0
+
+    # Try to mount those partitions first
+    for p in $PARTS; do
+        mkdir -p "/tmp/$p"
+        mount "${DEV}$p" "/tmp/$p" || {
+            FAIL=1
+            break
+        }
+        MOUNTED="${MOUNTED}${MOUNTED:+ }${DEV}$p"
+    done
+
+    # Unmount everything back if any of the mount operations failed
+    if [ "$FAIL" -ne 0 ]; then
+        # shellcheck disable=SC2086 # word splitting is intentional
+        umount_all $MOUNTED
+        return 1
+    fi
+
+    # Mount was successful, so copy all files
+    for p in $PARTS; do
+        cp -a "/storage/slot${SLOT}_$p/." "/tmp/$p/"
+    done
+
+    # Finally, unmount everything. The content will be flushed to the storage.
+    # shellcheck disable=SC2086 # word splitting is intentional
+    umount_all $MOUNTED
+}
+
+copy_image() {
+    IMG="/storage/slot${SLOT}.img"
+
+    [ -f "$IMG" ] || return 1
+
+    dd if="$IMG" of="$DEV" bs=1M
+}
+
+main() {
+    [ $# -eq 1 ] || die "invalid amount of arguments"
+
+    SLOT="$1"
+    [ -n "$SLOT" ] || die "invalid slot number"
+
+    # Try to copy the content from directories first.
+    # If that fails, try to copy the full image.
+    copy_dirs_content ||
+        copy_image ||
+        die "failed to copy content or image"
+}
+
+main "$@"

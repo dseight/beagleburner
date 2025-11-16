@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+/plugin/;
+
+&{/chosen} {
+	bootargs = "console=ttyS0,115200n8 earlyprintk=ttyS0,115200n8";
+};

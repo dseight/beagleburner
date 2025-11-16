@@ -1,0 +1,79 @@
+/dts-v1/;
+
+/ {
+	description = "BeagleBone Black + Burner Cape";
+	#address-cells = <1>;
+
+	images {
+		kernel {
+			description = "Linux Kernel";
+			data = /incbin/("zImage");
+			type = "kernel";
+			arch = "arm";
+			os = "linux";
+			compression = "none";
+			load = <0x80008000>;
+			entry = <0x80008000>;
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+		fdt-bbb {
+			description = "beaglebone-black";
+			data = /incbin/("am335x-boneblack.dtb");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+		/* Setting cmdline in configurations doesn't work */
+		fdt-bootargs {
+			description = "Kernel cmdline";
+			data = /incbin/("am335x-bootargs.dtbo");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+		fdt-burner {
+			description = "BeagleBurner Cape Overlay";
+			data = /incbin/("am335x-beagleburner.dtbo");
+			type = "flat_dt";
+			arch = "arm";
+			compression = "none";
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+		rootfs {
+			description = "BeagleBurner rootfs";
+			data = /incbin/("rootfs.cpio.zst");
+			type = "ramdisk";
+			arch = "arm";
+			os = "linux";
+			compression = "none";
+			hash-1 {
+				algo = "sha256";
+			};
+		};
+	};
+
+	configurations {
+		default = "conf-burner";
+
+		conf-bbb {
+			kernel = "kernel";
+			fdt = "fdt-bbb", "fdt-bootargs";
+			ramdisk = "rootfs";
+		};
+		conf-burner {
+			kernel = "kernel";
+			fdt = "fdt-bbb", "fdt-bootargs", "fdt-burner";
+			ramdisk = "rootfs";
+		};
+	};
+};

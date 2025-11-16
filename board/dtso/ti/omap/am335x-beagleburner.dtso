@@ -1,0 +1,154 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/pinctrl/am33xx.h>
+
+/*
+ * Helper to show loaded overlays under: /proc/device-tree/chosen/overlays/
+ */
+&{/chosen} {
+	overlays {
+		beagleburner.kernel = __TIMESTAMP__;
+	};
+};
+
+&{/leds} {
+	/* beaglebone:green:usr0 */
+	led2 {
+		linux,default-trigger = "none";
+	};
+
+	/* beaglebone:green:usr1 */
+	led3 {
+		linux,default-trigger = "mmc0"; /* sdcard */
+	};
+
+	/* beaglebone:green:usr2 */
+	led4 {
+		linux,default-trigger = "mmc1"; /* eMMC */
+	};
+
+	/* beaglebone:green:usr3 */
+	led5 {
+		linux,default-trigger = "cpu0";
+	};
+};
+
+/*
+ * Free up the pins used by the cape from the pinmux helpers.
+ */
+&ocp {
+	P8_07_pinmux { status = "disabled"; };	/* btn1 */
+	P8_09_pinmux { status = "disabled"; };	/* btn2 */
+	P8_10_pinmux { status = "disabled"; };	/* btn3 */
+	P8_31_pinmux { status = "disabled"; };	/* led-ok */
+	P9_14_pinmux { status = "disabled"; };	/* led-slot1 */
+	P9_22_pinmux { status = "disabled"; };	/* led-slot2 */
+	P9_30_pinmux { status = "disabled"; };	/* led-slot3 */
+	P9_42_pinmux { status = "disabled"; };	/* led-err */
+};
+
+&am33xx_pinmux {
+	beagleburner_key_pins: pinmux_beagleburner_key_pins {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_GPMC_ADVN_ALE, PIN_INPUT, MUX_MODE7) /* GPMC_ADVn_ALE.gpio2_2 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_BEN0_CLE, PIN_INPUT, MUX_MODE7) /* GPMC_BEN0_CLE.gpio2_5 */
+			AM33XX_PADCONF(AM335X_PIN_GPMC_WEN, PIN_INPUT, MUX_MODE7) /* GPMC_WEN.gpio2_4 */
+		>;
+	};
+
+	beagleburner_led_pins: pinmux_beagleburner_led_pins {
+		pinctrl-single,pins = <
+			AM33XX_PADCONF(AM335X_PIN_GPMC_A2, PIN_OUTPUT, MUX_MODE7) /* GPMC_A2.gpio1_18 */
+			AM33XX_PADCONF(AM335X_PIN_SPI0_SCLK, PIN_OUTPUT, MUX_MODE7) /* SPI0_SCLK.gpio0_2 */
+			AM33XX_PADCONF(AM335X_PIN_MCASP0_AXR0, PIN_OUTPUT, MUX_MODE7) /* MCASP0_AXR0.gpio3_16 */
+			AM33XX_PADCONF(AM335X_PIN_ECAP0_IN_PWM0_OUT, PIN_OUTPUT, MUX_MODE7) /* ECAP0_IN_PWM0_OUT.gpio0_7 */
+			AM33XX_PADCONF(AM335X_PIN_LCD_DATA14, PIN_OUTPUT, MUX_MODE7) /* LCD_DATA14.gpio0_10 */
+		>;
+	};
+};
+
+&{/} {
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&beagleburner_key_pins>;
+
+		slot1-button {
+			label = "Slot 1 Button";
+			gpios = <&gpio2 2 GPIO_ACTIVE_LOW>;
+			linux,code = <BTN_0>;
+			debounce-interval = <7>;
+			wakeup-source;
+		};
+
+		slot2-button {
+			label = "Slot 2 Button";
+			gpios = <&gpio2 5 GPIO_ACTIVE_LOW>;
+			linux,code = <BTN_1>;
+			debounce-interval = <7>;
+			wakeup-source;
+		};
+
+		slot3-button {
+			label = "Slot 3 Button";
+			gpios = <&gpio2 4 GPIO_ACTIVE_LOW>;
+			linux,code = <BTN_2>;
+			debounce-interval = <7>;
+			wakeup-source;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&beagleburner_led_pins>;
+
+		led-slot1 {
+			function = LED_FUNCTION_STATUS;
+			function-enumerator = <1>;
+			gpios = <&gpio1 18 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_YELLOW>;
+			linux,default-trigger = "default-on";
+		};
+
+		led-slot2 {
+			function = LED_FUNCTION_STATUS;
+			function-enumerator = <2>;
+			gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_YELLOW>;
+			linux,default-trigger = "default-on";
+		};
+
+		led-slot3 {
+			function = LED_FUNCTION_STATUS;
+			function-enumerator = <3>;
+			gpios = <&gpio3 16 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+			color = <LED_COLOR_ID_YELLOW>;
+			linux,default-trigger = "default-on";
+		};
+
+		led-err {
+			function = LED_FUNCTION_FAULT;
+			gpios = <&gpio0 7 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+			color = <LED_COLOR_ID_RED>;
+			linux,default-trigger = "default-on";
+		};
+
+		led-ok {
+			function = LED_FUNCTION_STATUS;
+			function-enumerator = <4>;
+			gpios = <&gpio0 10 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
+			color = <LED_COLOR_ID_GREEN>;
+			linux,default-trigger = "default-on";
+		};
+	};
+};

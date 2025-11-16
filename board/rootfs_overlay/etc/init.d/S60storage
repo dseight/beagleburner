@@ -1,0 +1,28 @@
+#!/bin/sh
+
+echo "storage: mounting /storage..."
+
+if [ ! -f /storage.img ]; then
+    echo "storage: error: /storage.img does not exist!"
+    exit 1
+fi
+
+if ! mount -o loop /storage.img /storage; then
+    echo "storage: somehow, /storage is not formatted yet. Formatting..."
+
+    mkfs.fat -F 32 /storage.img || exit
+
+    # Try again after formatting
+    mount -o loop /storage.img /storage || exit
+
+    # Copy storage skeleton
+    cp -a /etc/storage-skel/. /storage/
+fi
+
+# If some essential files (e.g. README) are changed/removed, restore them!
+# User might remove them after the initial initialization done above.
+if [ ! -f /storage/README.txt ] ||
+     ! cmp -s /etc/storage-skel/README.txt /storage/README.txt; then
+    echo "storage: restoring /storage/README.txt"
+    cp /etc/storage-skel/README.txt /storage/README.txt
+fi

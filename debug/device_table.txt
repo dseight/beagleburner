@@ -1,0 +1,4 @@
+# See package/makedevs/README for details
+# <name>				<type>	<mode>	<uid>	<gid>	<major>	<minor>	<start>	<inc>>	<count>
+/root/.ssh				d	700	root	root	-	-	-	-	-
+/root/.ssh/authorized_keys		f	600	root	root	-	-	-	-	-
