@@ -3,8 +3,16 @@ name: buildroot
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'LICENSE*'
+      - 'README.md'
+      - 'USAGE.md'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'LICENSE*'
+      - 'README.md'
+      - 'USAGE.md'
 
 jobs:
   build:
