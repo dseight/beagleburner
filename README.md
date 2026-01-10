@@ -12,7 +12,7 @@ Note that you don't need a PC when files are copied to the slot! You can just
 power on your BeagleBurner from a power bank, insert an SD Card and press a
 button!
 
-For more information of how to use this device, see [USAGE.md].
+For more information of how to use this device, see [USAGE.md](USAGE.md).
 
 ## Build
 
