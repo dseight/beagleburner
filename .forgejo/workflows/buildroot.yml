@@ -32,7 +32,7 @@ jobs:
         path: beagleburner
 
     - name: Clone buildroot
-      run: git clone --depth=1 -b 2025.11 https://github.com/buildroot/buildroot
+      run: git clone --depth=1 -b 2026.08 https://github.com/buildroot/buildroot
 
     - name: Run defconfig
       working-directory: buildroot
