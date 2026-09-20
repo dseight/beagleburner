@@ -16,21 +16,25 @@ For more information of how to use this device, see [USAGE.md](USAGE.md).
 
 ## Build
 
+Install a few packages. With Fedora 44 this would be something like:
+
+    sudo dnf install binutils gcc g++ patch perl
+
 Clone this repo:
 
     git clone https://github.com/dseight/beagleburner.git
 
-Then clone buildroot and checkout it on release `2025.11`:
+Then clone buildroot and checkout it on release `2026.08`:
 
     git clone https://github.com/buildroot/buildroot.git
     cd buildroot
-    git checkout 2025.11
+    git checkout 2026.08
 
 and run this, pointing to the directory with this repo:
 
     make BR2_EXTERNAL=/path/to/beagleburner beaglebone_defconfig
 
-and, finally, build it:
+and, finally, build it (no `-jN` needed):
 
     make
 
